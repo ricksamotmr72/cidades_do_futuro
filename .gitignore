@@ -1,0 +1,7 @@
+# Vídeos brutos (antes da otimização) — pesados demais para versionar
+assets/videos/originais/
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store

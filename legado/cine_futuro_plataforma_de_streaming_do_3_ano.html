@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cine Futuro - Cidades do Futuro (3º Ano)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Lexend', 'Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        space: {
+                            950: '#060813',
+                            900: '#0b0f24',
+                            800: '#13193a',
+                            700: '#1d2654',
+                        },
+                        neon: {
+                            cyan: '#00f3ff',
+                            purple: '#9d4edd',
+                            pink: '#ec4899',
+                            green: '#00e676',
+                            yellow: '#fbbf24'
+                        }
+                    },
+                    boxShadow: {
+                        'glow-cyan': '0 0 20px rgba(0, 243, 255, 0.4)',
+                        'glow-purple': '0 0 20px rgba(157, 78, 221, 0.4)',
+                        'glow-card': '0 0 25px rgba(0, 243, 255, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { height: 8px; width: 8px; }
+        ::-webkit-scrollbar-track { background: #060813; }
+        ::-webkit-scrollbar-thumb { background: #1d2654; border-radius: 9999px; border: 1px solid rgba(0, 243, 255, 0.3); }
+        ::-webkit-scrollbar-thumb:hover { background: #00f3ff; }
+        
+        .glass-panel {
+            background: rgba(11, 15, 36, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+        }
+        .text-glow { text-shadow: 0 0 14px rgba(0, 243, 255, 0.6); }
+        
+        /* Efeito de Prévia Scanner Futurista ao Passar o Mouse */
+        .preview-scan-line {
+            position: absolute;
+            left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00f3ff, #ec4899, transparent);
+            box-shadow: 0 0 15px #00f3ff;
+            animation: scanLine 1.8s ease-in-out infinite alternate;
+        }
+        @keyframes scanLine {
+            0% { top: 0%; opacity: 0.3; }
+            100% { top: 95%; opacity: 1; }
+        }
+
+        canvas#space-bg, canvas#particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+        }
+        canvas#space-bg { z-index: 0; }
+        canvas#particle-canvas { z-index: 99; }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.03); }
+        }
+        .animate-pulse-glow { animation: pulseGlow 4s infinite ease-in-out; }
+    </style>
+</head>
+<body class="bg-space-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-neon-cyan selection:text-space-950">
+
+    <!-- Fundo de Estrelas e Partículas -->
+    <canvas id="space-bg"></canvas>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- WRAPPER PRINCIPAL -->
+    <div class="relative z-10 flex flex-col min-h-screen">
+
+        <!-- HEADER DA APLICAÇÃO -->
+        <header class="sticky top-0 z-40 glass-panel border-b border-cyan-500/30 px-4 lg:px-8 py-3">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+                
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-400 via-purple-600 to-pink-500 p-[2px] shadow-glow-cyan transition-transform group-hover:scale-105">
+                        <div class="w-full h-full bg-space-900 rounded-[14px] flex items-center justify-center">
+                            <i class="fa-solid fa-city text-neon-cyan text-xl group-hover:rotate-6 transition-transform"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-extrabold text-xl lg:text-2xl tracking-wide bg-gradient-to-r from-neon-cyan via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                                CINE FUTURO
+                            </h1>
+                            <span class="bg-cyan-950/90 border border-cyan-400/50 text-neon-cyan text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">
+                                3º Ano EF
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 hidden sm:block">Projeto: Cidades do Futuro</p>
+                    </div>
+                </div>
+
+                <!-- Barra de Pesquisa -->
+                <div class="flex-1 max-w-md mx-2 order-3 sm:order-2 w-full sm:w-auto">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-cyan-400/70"></i>
+                        <input type="text" id="searchInput" oninput="handleSearch(this.value)" 
+                            placeholder="Buscar vídeos por turma..." 
+                            class="w-full bg-space-900/90 border border-slate-700/80 rounded-xl py-2 pl-10 pr-9 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan transition-all">
+                        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ações do Header -->
+                <div class="flex items-center gap-2 sm:gap-3 order-2 sm:order-3">
+                    <!-- Crachá de Explorador -->
+                    <button onclick="openBadgeModal()" class="flex items-center gap-2 bg-gradient-to-r from-cyan-950/80 to-purple-950/80 hover:from-cyan-900/90 hover:to-purple-900/90 border border-cyan-500/40 px-3.5 py-2 rounded-xl transition-all shadow-md group">
+                        <i class="fa-solid fa-rocket text-neon-cyan group-hover:rotate-12 transition-transform text-base"></i>
+                        <div class="text-left text-xs">
+                            <span class="block text-[10px] text-slate-400 leading-none">Explorador</span>
+                            <span id="progressText" class="font-bold text-neon-cyan">0/9 Vistos</span>
+                        </div>
+                    </button>
+
+                    <!-- Botão de Som -->
+                    <button onclick="toggleSound()" id="soundBtn" title="Som Lúdico" class="bg-space-800 hover:bg-space-700 border border-slate-700 p-2.5 rounded-xl text-slate-300 hover:text-neon-cyan transition-all">
+                        <i class="fa-solid fa-volume-high text-sm"></i>
+                    </button>
+                </div>
+
+            </div>
+        </header>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="flex-grow max-w-7xl w-full mx-auto px-4 lg:px-8 py-6 space-y-8">
+
+            <!-- CARROSSEL DE DESTAQUES (PRÉVIA AUTOMÁTICA DOS 9 VÍDEOS) -->
+            <section id="heroSection" class="relative rounded-3xl overflow-hidden glass-panel border border-cyan-500/40 shadow-glow-card transition-all group min-h-[320px] sm:min-h-[380px] flex items-end">
+                <div id="heroBgImage" class="absolute inset-0 bg-cover bg-center transition-all duration-700 opacity-50 scale-105"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-space-950 via-space-950/80 to-transparent z-10"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-space-950 via-space-950/70 to-transparent z-10"></div>
+
+                <!-- Conteúdo do Slide -->
+                <div class="relative z-20 p-6 sm:p-8 md:p-10 max-w-3xl flex flex-col items-start gap-4 w-full">
+                    
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1.5">
+                            <i class="fa-solid fa-sparkles text-yellow-300"></i> Destaques do 3º Ano
+                        </span>
+                    </div>
+
+                    <h2 id="heroTurmaName" class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight text-glow transition-all my-1">
+                        Turma 3º A
+                    </h2>
+
+                    <div class="flex flex-wrap items-center gap-4 pt-2 w-full justify-between">
+                        <button id="heroPlayBtn" onclick="playCurrentHeroVideo()" class="bg-gradient-to-r from-neon-cyan via-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-space-950 font-extrabold px-6 py-3 rounded-2xl flex items-center gap-2.5 shadow-glow-cyan transform hover:-translate-y-0.5 transition-all text-sm sm:text-base">
+                            <i class="fa-solid fa-play text-lg"></i>
+                            Assistir Agora
+                        </button>
+
+                        <!-- Botões de Navegação Manual do Carrossel -->
+                        <div class="flex items-center gap-2 bg-space-900/80 backdrop-blur-md p-1.5 rounded-2xl border border-slate-800">
+                            <button onclick="prevHeroSlide()" class="w-9 h-9 rounded-xl bg-space-800 hover:bg-cyan-500/20 text-slate-300 hover:text-neon-cyan flex items-center justify-center transition-colors">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <span id="heroCounter" class="text-xs font-bold px-2 text-cyan-400">1 / 9</span>
+                            <button onclick="nextHeroSlide()" class="w-9 h-9 rounded-xl bg-space-800 hover:bg-cyan-500/20 text-slate-300 hover:text-neon-cyan flex items-center justify-center transition-colors">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Indicadores do Carrossel (9 Dots) -->
+                    <div class="flex items-center gap-1.5 pt-2 w-full" id="heroDots">
+                        <!-- Gerado via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO DOS 9 VÍDEOS -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-play text-neon-cyan"></i>
+                        Vídeos das Turmas
+                    </h3>
+                    <span id="videoCountBadge" class="text-xs text-slate-400 bg-space-900 px-3 py-1 rounded-full border border-slate-800">
+                        9 vídeos disponíveis
+                    </span>
+                </div>
+
+                <!-- GRID DOS 9 CARDS -->
+                <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
+
+                <div id="noResults" class="hidden text-center py-12 glass-panel rounded-3xl border border-slate-800">
+                    <i class="fa-solid fa-satellite text-neon-cyan text-4xl mb-3"></i>
+                    <h4 class="text-lg font-bold text-white">Nenhum vídeo encontrado</h4>
+                    <p class="text-xs text-slate-400 mt-1">Tente buscar por outro nome de turma.</p>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- RODAPÉ -->
+        <footer class="glass-panel border-t border-slate-800/80 mt-12 py-6 px-4 text-center text-xs text-slate-400">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-neon-cyan text-base"></i>
+                    <span>Projeto Escolar 3º Ano — Cidades do Futuro</span>
+                </div>
+                <p class="text-slate-500">Exibição dos vídeos produzidos pelos alunos</p>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- MODAL DO PLAYER DE VÍDEO COM AUTOPLAY -->
+    <div id="videoModal" class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-space-950/95 backdrop-blur-xl opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="relative w-full max-w-5xl bg-space-900 border border-cyan-500/40 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
+            
+            <div class="flex items-center justify-between p-4 bg-space-950 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <span id="modalTurmaBadge" class="bg-neon-cyan text-space-950 font-black text-sm px-4 py-1.5 rounded-full uppercase tracking-wider">
+                        Turma 3º A
+                    </span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a id="modalExternalBtn" href="#" target="_blank" rel="noopener noreferrer" title="Abrir em nova aba no Google Drive" class="flex items-center gap-1.5 bg-space-800 hover:bg-cyan-950/80 border border-cyan-500/40 text-neon-cyan px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir no Drive
+                    </a>
+                    <button onclick="closeVideoModal()" class="text-slate-400 hover:text-white bg-space-800 hover:bg-slate-700 w-9 h-9 rounded-full flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ÁREA DO VÍDEO / EMBED -->
+            <div id="playerContainer" class="relative w-full bg-black aspect-video flex items-center justify-center overflow-hidden">
+                <!-- Indicador de Carregamento Futurista -->
+                <div id="playerLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-space-950/90 z-20 transition-opacity">
+                    <i class="fa-solid fa-circle-notch animate-spin text-neon-cyan text-4xl mb-3"></i>
+                    <span class="text-xs text-slate-300 font-bold tracking-wide">Carregando vídeo da turma...</span>
+                </div>
+                <iframe id="modalIframe" class="w-full h-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>
+                <video id="modalVideoNative" class="hidden w-full h-full" controls autoplay></video>
+            </div>
+
+            <div class="p-4 sm:p-6 bg-space-900 flex items-center justify-end gap-3">
+                <button id="modalLikeBtn" class="flex items-center gap-2 bg-space-800 px-4 py-2 rounded-xl text-xs font-bold transition-all">
+                    <i class="fa-solid fa-star"></i>
+                    <span id="modalLikeText">Curtir</span>
+                </button>
+                <button id="modalWatchBtn" class="flex items-center gap-2 bg-space-800 px-4 py-2 rounded-xl text-xs font-bold transition-all">
+                    <i class="fa-solid fa-check"></i>
+                    <span id="modalWatchText">Visto</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONQUISTAS (EXPLORADOR) -->
+    <div id="badgeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-space-950/90 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="relative w-full max-w-md bg-space-900 border border-cyan-500/40 rounded-3xl p-6 shadow-glow-card space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-trophy text-yellow-400 text-xl"></i>
+                    <h3 class="font-extrabold text-white text-lg">Conquistas de Explorador</h3>
+                </div>
+                <button onclick="closeBadgeModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Barra de Progresso -->
+            <div class="space-y-1.5">
+                <div class="flex justify-between text-xs font-bold">
+                    <span class="text-slate-300">Progresso Geral</span>
+                    <span id="badgeProgressVal" class="text-neon-cyan">0 / 9 (0%)</span>
+                </div>
+                <div class="w-full bg-space-950 rounded-full h-3 p-0.5 border border-slate-800">
+                    <div id="badgeProgressBar" class="bg-gradient-to-r from-neon-cyan to-purple-500 h-full rounded-full transition-all duration-500 w-0"></div>
+                </div>
+            </div>
+
+            <!-- Lista de Selos -->
+            <div id="achievementsContainer" class="grid grid-cols-1 gap-2.5 max-h-60 overflow-y-auto pr-1">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST DE NOTIFICAÇÃO -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-space-800 border border-cyan-400/50 text-white px-5 py-3 rounded-2xl shadow-glow-cyan transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <span id="toastIcon" class="text-xl">🚀</span>
+        <span id="toastMessage" class="text-xs font-bold">Mensagem de aviso</span>
+    </div>
+
+    <!-- LÓGICA DO SISTEMA -->
+    <script>
+        // =========================================================================
+        // 🚀 ARRAY CENTRALIZADO DOS 9 VÍDEOS (APENAS NOME DAS TURMAS E LINKS)
+        // =========================================================================
+        const VIDEOS_DO_PROJETO = [
+            { 
+                id: 1,
+                turma: "Turma 3º A", 
+                link: "https://drive.google.com/file/d/1dBTWgRO30goEZl9aEZCYAHZELOpysSL2/preview",
+                capa: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80"
+            },
+            { 
+                id: 2,
+                turma: "Turma 3º B", 
+                link: "https://drive.google.com/file/d/19LOBXrs6HtEP29BN1_dd1n4ub5NTFNv_/preview",
+                capa: "https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=800&q=80"
+            },
+            { 
+                id: 3,
+                turma: "Turma 3º C", 
+                link: "https://drive.google.com/file/d/1i9ES98fCpUvLh9VkS1LN80WL23FDM9On/preview",
+                capa: "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?auto=format&fit=crop&w=800&q=80"
+            },
+            { 
+                id: 4,
+                turma: "Turma 3º D", 
+                link: "https://drive.google.com/file/d/1R_hGPo9QpZddkdXn0SF_pvQkKpMx4hV-/preview",
+                capa: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80"
+            },
+            { 
+                id: 5,
+                turma: "Turma 3º E", 
+                link: "https://drive.google.com/file/d/1Sgg9XdYVdnG9c9VF5Fx1WZr1klVZ3tgu/preview",
+                capa: "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?auto=format&fit=crop&w=800&q=80"
+            },
+            { 
+                id: 6,
+                turma: "Turma 3º F", 
+                link: "https://drive.google.com/file/d/1clHb-y82Y51BuUyAQqkJyTaWS_TuhACt/preview",
+                capa: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80"
+            },
+            { 
+                id: 7,
+                turma: "Turma 3º G", 
+                link: "https://drive.google.com/file/d/1oSe-GqDER2FbjDH8TAOim18r7rNmJEuD/preview",
+                capa: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80"
+            },
+            { 
+                id: 8,
+                turma: "Turma 3º H", 
+                link: "https://drive.google.com/file/d/1JmsRIaBAib342hfrHOCcA2l4Iked0d4a/preview",
+                capa: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=800&q=80"
+            },
+            { 
+                id: 9,
+                turma: "Turma 3º I", 
+                link: "https://drive.google.com/file/d/1sJJhRH7m5zYTv5H1PfULW0-D3qO5V8p-/preview",
+                capa: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=800&q=80"
+            }
+        ];
+
+        let videos = [];
+        let searchQuery = '';
+        let soundEnabled = true;
+        let currentHeroIndex = 0;
+        let heroInterval = null;
+
+        // Helper seguro para localStorage (evita travamentos em iframe sandbox)
+        function safeGetStorage(key, defaultVal) {
+            try {
+                const val = localStorage.getItem(key);
+                return val ? JSON.parse(val) : defaultVal;
+            } catch(e) {
+                return defaultVal;
+            }
+        }
+
+        function safeSetStorage(key, val) {
+            try {
+                localStorage.setItem(key, JSON.stringify(val));
+            } catch(e) {}
+        }
+
+        // Conversor Inteligente de Links do Google Drive e YouTube
+        function extractDriveId(url) {
+            if (!url) return null;
+            let match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) return match[1];
+            match = url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) return match[1];
+            return null;
+        }
+
+        function extractYouTubeId(url) {
+            if (!url) return null;
+            let match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+            return match ? match[1] : null;
+        }
+
+        function formatEmbedUrl(url) {
+            if (!url) return { type: 'iframe', src: '', raw: '' };
+            let cleaned = url.trim();
+
+            if (cleaned.endsWith('.mp4') || cleaned.includes('.mp4?')) {
+                return { type: 'video', src: cleaned, raw: cleaned };
+            }
+
+            const driveId = extractDriveId(cleaned);
+            if (driveId) {
+                return { 
+                    type: 'iframe', 
+                    src: `https://drive.google.com/file/d/${driveId}/preview`,
+                    raw: `https://drive.google.com/file/d/${driveId}/view?usp=sharing`
+                };
+            }
+
+            const ytId = extractYouTubeId(cleaned);
+            if (ytId) {
+                return { 
+                    type: 'iframe', 
+                    src: `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`,
+                    raw: `https://www.youtube.com/watch?v=${ytId}`
+                };
+            }
+
+            return { type: 'iframe', src: cleaned, raw: cleaned };
+        }
+
+        // Gerador de capa reserva caso a imagem falhe
+        function handleImgError(img, turma) {
+            img.onerror = null;
+            const text = encodeURIComponent(turma);
+            img.src = `https://placehold.co/800x450/0b0f24/00f3ff?text=${text}`;
+        }
+
+        // Inicialização
+        window.addEventListener('DOMContentLoaded', () => {
+            initVideosData();
+            initSpaceCanvas();
+            renderHeroSlide(0);
+            startHeroAutoplay();
+            renderGrid();
+            updateProgress();
+        });
+
+        function initVideosData() {
+            const watchedList = safeGetStorage('cine_futuro_watched', []);
+            const likedList = safeGetStorage('cine_futuro_liked', []);
+
+            videos = VIDEOS_DO_PROJETO.map(v => ({
+                ...v,
+                watched: watchedList.includes(v.id),
+                liked: likedList.includes(v.id)
+            }));
+        }
+
+        // Carrossel Destaque (Hero)
+        function startHeroAutoplay() {
+            stopHeroAutoplay();
+            heroInterval = setInterval(() => {
+                nextHeroSlide();
+            }, 5000);
+        }
+
+        function stopHeroAutoplay() {
+            if (heroInterval) clearInterval(heroInterval);
+        }
+
+        function renderHeroSlide(index) {
+            currentHeroIndex = index;
+            const item = videos[index];
+            if (!item) return;
+
+            const bgImage = document.getElementById('heroBgImage');
+            bgImage.style.backgroundImage = `url('${item.capa}')`;
+
+            document.getElementById('heroTurmaName').innerText = item.turma;
+            document.getElementById('heroCounter').innerText = `${index + 1} / ${videos.length}`;
+
+            const dotsContainer = document.getElementById('heroDots');
+            dotsContainer.innerHTML = videos.map((_, i) => `
+                <button onclick="goToHeroSlide(${i})" class="h-2 rounded-full transition-all duration-300 ${i === index ? 'w-8 bg-neon-cyan shadow-glow-cyan' : 'w-2 bg-slate-700 hover:bg-slate-500'}"></button>
+            `).join('');
+        }
+
+        function nextHeroSlide() {
+            let next = (currentHeroIndex + 1) % videos.length;
+            renderHeroSlide(next);
+        }
+
+        function prevHeroSlide() {
+            let prev = (currentHeroIndex - 1 + videos.length) % videos.length;
+            renderHeroSlide(prev);
+        }
+
+        function goToHeroSlide(index) {
+            playSound('click');
+            renderHeroSlide(index);
+            startHeroAutoplay();
+        }
+
+        function playCurrentHeroVideo() {
+            const currentVideo = videos[currentHeroIndex];
+            if (currentVideo) openVideoModal(currentVideo.id);
+        }
+
+        const heroSection = document.getElementById('heroSection');
+        if (heroSection) {
+            heroSection.addEventListener('mouseenter', stopHeroAutoplay);
+            heroSection.addEventListener('mouseleave', startHeroAutoplay);
+        }
+
+        // Grade de Cards
+        function renderGrid() {
+            const container = document.getElementById('videoGrid');
+            container.innerHTML = '';
+
+            let filtered = videos.filter(v => {
+                const searchLower = searchQuery.toLowerCase();
+                return v.turma.toLowerCase().includes(searchLower);
+            });
+
+            document.getElementById('videoCountBadge').innerText = `${filtered.length} de ${videos.length} turmas`;
+            document.getElementById('noResults').classList.toggle('hidden', filtered.length > 0);
+
+            filtered.forEach(video => {
+                const card = document.createElement('div');
+                card.className = "group relative glass-panel rounded-3xl overflow-hidden border border-slate-800 hover:border-cyan-400/60 transition-all duration-300 hover:shadow-glow-card flex flex-col transform hover:-translate-y-1";
+
+                card.innerHTML = `
+                    <div class="relative w-full aspect-video bg-space-900 overflow-hidden cursor-pointer" onclick="openVideoModal(${video.id})">
+                        <img src="${video.capa}" alt="${video.turma}" 
+                            onerror="handleImgError(this, '${video.turma}')"
+                            class="w-full h-full object-cover group-hover:scale-110 group-hover:brightness-110 transition-all duration-500">
+                        
+                        <!-- Feixe Laser / Scanner de Prévia no Hover estilo Futuro -->
+                        <div class="hidden group-hover:block preview-scan-line z-20 pointer-events-none"></div>
+
+                        <!-- Badge de Prévia Holográfica no Hover -->
+                        <div class="absolute top-3 left-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                            <span class="bg-space-950/90 border border-neon-cyan/80 text-neon-cyan text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest flex items-center gap-1.5 shadow-glow-cyan">
+                                <span class="w-2 h-2 rounded-full bg-neon-cyan animate-ping"></span>
+                                Prévia
+                            </span>
+                        </div>
+
+                        <div class="absolute inset-0 bg-gradient-to-t from-space-950 via-space-950/20 to-transparent"></div>
+
+                        <div class="absolute top-3 right-3 z-10">
+                            ${video.watched ? `
+                                <span class="bg-emerald-500 text-space-950 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md">
+                                    <i class="fa-solid fa-circle-check"></i> Visto!
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <div class="absolute inset-0 flex items-center justify-center z-10">
+                            <div class="w-14 h-14 rounded-full bg-neon-cyan/90 text-space-950 flex items-center justify-center text-xl opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 shadow-glow-cyan">
+                                <i class="fa-solid fa-play ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-5 flex-1 flex items-center justify-between">
+                        <h4 class="font-extrabold text-white text-lg group-hover:text-neon-cyan transition-colors cursor-pointer" onclick="openVideoModal(${video.id})">
+                            ${video.turma}
+                        </h4>
+
+                        <div class="flex items-center gap-2">
+                            <button onclick="toggleLike(${video.id}, event)" title="Curtir" class="p-2.5 rounded-xl border ${video.liked ? 'bg-pink-950/60 border-pink-500 text-pink-400' : 'bg-space-900 border-slate-800 text-slate-400 hover:text-pink-400'} transition-all">
+                                <i class="fa-${video.liked ? 'solid' : 'regular'} fa-star"></i>
+                            </button>
+                            <button onclick="toggleWatched(${video.id}, event)" title="Marcar como Visto" class="p-2.5 rounded-xl border ${video.watched ? 'bg-emerald-950/60 border-emerald-500 text-emerald-400' : 'bg-space-900 border-slate-800 text-slate-400 hover:text-emerald-400'} transition-all">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Reprodutor Modal Otimizado
+        function openVideoModal(id) {
+            playSound('whoosh');
+            stopHeroAutoplay();
+            const video = videos.find(v => v.id === id);
+            if (!video) return;
+
+            if (!video.watched) {
+                video.watched = true;
+                saveState();
+                renderGrid();
+                updateProgress();
+            }
+
+            document.getElementById('modalTurmaBadge').innerText = video.turma;
+
+            const loader = document.getElementById('playerLoader');
+            if (loader) loader.classList.remove('hidden');
+
+            const embedInfo = formatEmbedUrl(video.link);
+            const externalBtn = document.getElementById('modalExternalBtn');
+            if (externalBtn) {
+                externalBtn.href = embedInfo.raw || video.link;
+            }
+
+            const iframe = document.getElementById('modalIframe');
+            const videoNative = document.getElementById('modalVideoNative');
+
+            if (embedInfo.type === 'video') {
+                iframe.classList.add('hidden');
+                iframe.src = 'about:blank';
+                videoNative.classList.remove('hidden');
+                videoNative.src = embedInfo.src;
+                videoNative.play().then(() => {
+                    if (loader) loader.classList.add('hidden');
+                }).catch(() => {
+                    if (loader) loader.classList.add('hidden');
+                });
+            } else {
+                videoNative.classList.add('hidden');
+                videoNative.pause();
+                videoNative.src = '';
+                iframe.classList.remove('hidden');
+                
+                iframe.onload = () => {
+                    if (loader) loader.classList.add('hidden');
+                };
+                iframe.src = embedInfo.src;
+            }
+
+            updateModalButtons(video);
+            document.getElementById('videoModal').classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeVideoModal() {
+            playSound('click');
+            const iframe = document.getElementById('modalIframe');
+            const videoNative = document.getElementById('modalVideoNative');
+
+            iframe.onload = null;
+            iframe.src = 'about:blank';
+            videoNative.pause();
+            videoNative.src = '';
+
+            const loader = document.getElementById('playerLoader');
+            if (loader) loader.classList.add('hidden');
+
+            document.getElementById('videoModal').classList.add('opacity-0', 'pointer-events-none');
+            startHeroAutoplay();
+        }
+
+        function updateModalButtons(video) {
+            const likeBtn = document.getElementById('modalLikeBtn');
+            const watchBtn = document.getElementById('modalWatchBtn');
+            const likeText = document.getElementById('modalLikeText');
+            const watchText = document.getElementById('modalWatchText');
+
+            likeBtn.setAttribute('onclick', `toggleLike(${video.id}, event)`);
+            watchBtn.setAttribute('onclick', `toggleWatched(${video.id}, event)`);
+
+            likeText.innerText = video.liked ? 'Curtido' : 'Curtir';
+            watchText.innerText = video.watched ? 'Visto' : 'Marcar Visto';
+
+            likeBtn.className = video.liked ? 
+                "flex items-center gap-2 bg-pink-950/80 border border-pink-500 text-pink-400 px-4 py-2 rounded-xl text-xs font-bold" : 
+                "flex items-center gap-2 bg-space-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold";
+            
+            watchBtn.className = video.watched ? 
+                "flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-400 px-4 py-2 rounded-xl text-xs font-bold" : 
+                "flex items-center gap-2 bg-space-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold";
+        }
+
+        // Busca e Interações
+        function handleSearch(val) {
+            searchQuery = val;
+            document.getElementById('clearSearchBtn').classList.toggle('hidden', !val.trim());
+            renderGrid();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            handleSearch('');
+        }
+
+        function toggleLike(id, event) {
+            if (event) event.stopPropagation();
+            const video = videos.find(v => v.id === id);
+            if (video) {
+                video.liked = !video.liked;
+                saveState();
+                renderGrid();
+                playSound('star');
+                
+                if (event && video.liked) {
+                    triggerStarParticles(event.clientX, event.clientY);
+                }
+
+                showToast(video.liked ? 'Estrela Adicionada! ⭐' : 'Curtida Removida', '⭐');
+                updateModalButtons(video);
+            }
+        }
+
+        function toggleWatched(id, event) {
+            if (event) event.stopPropagation();
+            const video = videos.find(v => v.id === id);
+            if (video) {
+                video.watched = !video.watched;
+                saveState();
+                renderGrid();
+                updateProgress();
+                playSound(video.watched ? 'success' : 'click');
+                showToast(video.watched ? 'Marcado como visto! 🎉' : 'Desmarcado', '✅');
+                updateModalButtons(video);
+            }
+        }
+
+        function saveState() {
+            const watchedIds = videos.filter(v => v.watched).map(v => v.id);
+            const likedIds = videos.filter(v => v.liked).map(v => v.id);
+            safeSetStorage('cine_futuro_watched', watchedIds);
+            safeSetStorage('cine_futuro_liked', likedIds);
+        }
+
+        function updateProgress() {
+            const count = videos.filter(v => v.watched).length;
+            const percent = Math.round((count / 9) * 100);
+
+            document.getElementById('progressText').innerText = `${count}/9 Vistos`;
+            document.getElementById('badgeProgressVal').innerText = `${count} / 9 (${percent}%)`;
+            document.getElementById('badgeProgressBar').style.width = `${percent}%`;
+
+            renderBadges(count);
+        }
+
+        function renderBadges(count) {
+            const container = document.getElementById('achievementsContainer');
+            const badges = [
+                { req: 1, title: "Primeiro Passo", icon: "🥉", desc: "Assistiu a 1 vídeo" },
+                { req: 3, title: "Guardião da Natureza", icon: "🌿", desc: "Assistiu a 3 vídeos" },
+                { req: 6, title: "Engenheiro do Amanhã", icon: "🤖", desc: "Assistiu a 6 vídeos" },
+                { req: 9, title: "Mestre Urbanista 3000", icon: "🏆", desc: "Assistiu a todos os 9!" }
+            ];
+
+            container.innerHTML = badges.map(b => {
+                const unlocked = count >= b.req;
+                return `
+                    <div class="p-2.5 rounded-xl border ${unlocked ? 'bg-cyan-950/80 border-cyan-400/50 text-white' : 'bg-space-950 border-slate-800 opacity-50'} flex items-center gap-2">
+                        <span class="text-xl">${b.icon}</span>
+                        <div>
+                            <div class="font-bold text-[11px]">${b.title}</div>
+                            <div class="text-[9px] text-slate-400">${b.desc}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openBadgeModal() {
+            playSound('whoosh');
+            updateProgress();
+            document.getElementById('badgeModal').classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeBadgeModal() {
+            playSound('click');
+            document.getElementById('badgeModal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundBtn').innerHTML = soundEnabled ? 
+                `<i class="fa-solid fa-volume-high text-sm"></i>` : 
+                `<i class="fa-solid fa-volume-xmark text-sm"></i>`;
+            showToast(soundEnabled ? "Sons ativados!" : "Sons desativados.", soundEnabled ? "🔔" : "🔕");
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                const now = ctx.currentTime;
+
+                if (type === 'click') {
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now); osc.stop(now + 0.08);
+                } else if (type === 'star') {
+                    osc.frequency.setValueAtTime(523, now);
+                    osc.frequency.setValueAtTime(659, now + 0.08);
+                    osc.frequency.setValueAtTime(783, now + 0.16);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now); osc.stop(now + 0.25);
+                } else if (type === 'success') {
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(900, now + 0.2);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now); osc.stop(now + 0.2);
+                } else if (type === 'whoosh') {
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.12);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+                    osc.start(now); osc.stop(now + 0.12);
+                }
+            } catch(e) {}
+        }
+
+        function showToast(msg, icon = '🚀') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastIcon').innerText = icon;
+            document.getElementById('toastMessage').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        let activeParticles = [];
+        function triggerStarParticles(x, y) {
+            const pCanvas = document.getElementById('particle-canvas');
+            pCanvas.width = window.innerWidth;
+            pCanvas.height = window.innerHeight;
+
+            for (let i = 0; i < 20; i++) {
+                activeParticles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8 - 2,
+                    size: Math.random() * 6 + 4,
+                    color: Math.random() > 0.5 ? '#ec4899' : '#00f3ff',
+                    alpha: 1
+                });
+            }
+        }
+
+        function animateParticles() {
+            const pCanvas = document.getElementById('particle-canvas');
+            const pCtx = pCanvas.getContext('2d');
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+
+            activeParticles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.03;
+
+                if (p.alpha <= 0) {
+                    activeParticles.splice(index, 1);
+                } else {
+                    pCtx.save();
+                    pCtx.globalAlpha = p.alpha;
+                    pCtx.fillStyle = p.color;
+                    pCtx.beginPath();
+                    pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    pCtx.fill();
+                    pCtx.restore();
+                }
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        function initSpaceCanvas() {
+            const canvas = document.getElementById('space-bg');
+            const ctx = canvas.getContext('2d');
+            let w = canvas.width = window.innerWidth;
+            let h = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            });
+
+            const stars = Array.from({ length: 65 }, () => ({
+                x: Math.random() * w, y: Math.random() * h,
+                r: Math.random() * 1.5 + 0.5,
+                a: Math.random(), s: Math.random() * 0.02 + 0.005,
+                c: Math.random() > 0.5 ? '#00f3ff' : '#9d4edd'
+            }));
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+                stars.forEach(s => {
+                    s.a += s.s;
+                    if (s.a > 1 || s.a < 0) s.s = -s.s;
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fillStyle = s.c;
+                    ctx.globalAlpha = Math.abs(s.a) * 0.5;
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>

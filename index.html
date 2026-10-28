@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Cine Futuro — vídeos produzidos pelas turmas do 3º ano no projeto Cidades do Futuro.">
+    <meta name="theme-color" content="#060813">
+    <title>Cine Futuro - Cidades do Futuro (3º Ano)</title>
+
+    <!-- Conexões antecipadas: reduzem a latência do primeiro play -->
+    <link rel="preconnect" href="https://drive.google.com">
+    <link rel="dns-prefetch" href="https://youtube.googleapis.com">
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <link rel="stylesheet" href="assets/css/tokens.css">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+
+    <script type="module" src="assets/js/main.js"></script>
+</head>
+<body>
+    <canvas id="space-bg" class="fx-canvas fx-canvas--bg" aria-hidden="true"></canvas>
+    <canvas id="particle-canvas" class="fx-canvas fx-canvas--particles" aria-hidden="true"></canvas>
+
+    <div class="app">
+        <!-- CABEÇALHO -->
+        <header class="header glass">
+            <div class="container header__inner">
+                <a href="#topo" class="brand" aria-label="Cine Futuro — voltar ao topo">
+                    <span class="brand__logo"><i class="fa-solid fa-city" aria-hidden="true"></i></span>
+                    <span>
+                        <span class="brand__row">
+                            <span class="brand__title">CINE FUTURO</span>
+                            <span class="pill pill--outline">3º Ano EF</span>
+                        </span>
+                        <span class="brand__subtitle">Projeto: Cidades do Futuro</span>
+                    </span>
+                </a>
+
+                <div class="search" role="search">
+                    <i class="fa-solid fa-magnifying-glass search__icon" aria-hidden="true"></i>
+                    <label for="searchInput" class="sr-only">Buscar vídeos por turma</label>
+                    <input type="search" id="searchInput" class="search__input" placeholder="Buscar por turma..." autocomplete="off" enterkeyhint="search">
+                    <button type="button" id="clearSearchBtn" class="search__clear" aria-label="Limpar busca" hidden>
+                        <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <div class="header__actions">
+                    <button type="button" class="explorer-btn" data-action="open-badges">
+                        <i class="fa-solid fa-rocket" aria-hidden="true"></i>
+                        <span class="explorer-btn__text">
+                            <span class="explorer-btn__label">Explorador</span>
+                            <span class="explorer-btn__value"><span id="progressText">0/9</span><span class="explorer-btn__suffix"> Vistos</span></span>
+                        </span>
+                    </button>
+                    <button type="button" id="soundBtn" class="icon-btn" data-action="toggle-sound" aria-pressed="true" title="Som lúdico">
+                        <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                        <span class="sr-only">Ativar ou desativar sons</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main id="topo" class="container main">
+            <!-- DESTAQUES (CARROSSEL) -->
+            <section id="heroSection" class="hero" aria-roledescription="carrossel" aria-label="Destaques do 3º ano">
+                <div id="heroBgImage" class="hero__bg" aria-hidden="true"></div>
+                <div class="hero__shade" aria-hidden="true"></div>
+
+                <div class="hero__content">
+                    <span class="pill pill--gradient">
+                        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Destaques do 3º Ano
+                    </span>
+
+                    <h2 id="heroTurmaName" class="hero__title" aria-live="polite">Turma 3º A</h2>
+
+                    <div class="hero__controls">
+                        <button type="button" class="btn btn--primary" data-action="play-hero">
+                            <i class="fa-solid fa-play" aria-hidden="true"></i> Assistir Agora
+                        </button>
+
+                        <div class="hero__nav">
+                            <button type="button" class="hero__nav-btn" data-action="hero-prev" aria-label="Destaque anterior">
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </button>
+                            <span id="heroCounter" class="hero__counter">1 / 9</span>
+                            <button type="button" class="hero__nav-btn" data-action="hero-next" aria-label="Próximo destaque">
+                                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="heroDots" class="hero__dots"></div>
+                </div>
+            </section>
+
+            <!-- GRADE DE VÍDEOS -->
+            <section class="videos" aria-labelledby="videosTitle">
+                <div class="section-head">
+                    <h3 id="videosTitle" class="section-head__title">
+                        <i class="fa-solid fa-play" aria-hidden="true"></i> Vídeos das Turmas
+                    </h3>
+                    <span id="videoCountBadge" class="counter-badge" aria-live="polite">9 vídeos disponíveis</span>
+                </div>
+
+                <ul id="videoGrid" class="video-grid" role="list"></ul>
+
+                <div id="noResults" class="empty-state" hidden>
+                    <i class="fa-solid fa-satellite" aria-hidden="true"></i>
+                    <h4>Nenhum vídeo encontrado</h4>
+                    <p>Tente buscar por outro nome de turma.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer glass">
+            <div class="container footer__inner">
+                <span><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Projeto Escolar 3º Ano — Cidades do Futuro</span>
+                <p>Exibição dos vídeos produzidos pelos alunos</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL DO PLAYER -->
+    <dialog id="videoModal" class="modal modal--player" aria-labelledby="modalTurmaBadge">
+        <div class="modal__header">
+            <span id="modalTurmaBadge" class="pill pill--solid">Turma 3º A</span>
+            <div class="modal__header-actions">
+                <a id="modalExternalBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn--ghost btn--sm btn--collapse">
+                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> <span id="modalExternalLabel" class="btn__label">Abrir no Drive</span>
+                </a>
+                <button type="button" class="icon-btn icon-btn--round" data-action="close-modal" aria-label="Fechar vídeo" autofocus>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="playerContainer" class="player">
+            <div id="playerLoader" class="player__loader" role="status">
+                <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+                <span>Carregando vídeo da turma...</span>
+            </div>
+            <iframe id="modalIframe" class="player__media" title="Vídeo da turma" hidden
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            <video id="modalVideoNative" class="player__media" controls playsinline preload="metadata" hidden></video>
+        </div>
+
+        <div class="modal__footer">
+            <button type="button" id="modalLikeBtn" class="toggle-btn toggle-btn--like" data-action="toggle-like">
+                <i class="fa-solid fa-star" aria-hidden="true"></i> <span>Curtir</span>
+            </button>
+            <button type="button" id="modalWatchBtn" class="toggle-btn toggle-btn--watch" data-action="toggle-watched">
+                <i class="fa-solid fa-check" aria-hidden="true"></i> <span>Marcar Visto</span>
+            </button>
+        </div>
+    </dialog>
+
+    <!-- MODAL DE CONQUISTAS -->
+    <dialog id="badgeModal" class="modal modal--badges" aria-labelledby="badgeModalTitle">
+        <div class="badges">
+            <div class="badges__head">
+                <h3 id="badgeModalTitle"><i class="fa-solid fa-trophy" aria-hidden="true"></i> Conquistas de Explorador</h3>
+                <button type="button" class="icon-btn icon-btn--plain" data-action="close-modal" aria-label="Fechar conquistas">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="progress">
+                <div class="progress__labels">
+                    <span>Progresso Geral</span>
+                    <span id="badgeProgressVal" class="progress__value">0 / 9 (0%)</span>
+                </div>
+                <div class="progress__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="badgeProgress">
+                    <div id="badgeProgressBar" class="progress__bar"></div>
+                </div>
+            </div>
+
+            <ul id="achievementsContainer" class="achievements" role="list"></ul>
+        </div>
+    </dialog>
+
+    <!-- NOTIFICAÇÃO -->
+    <div id="toast" class="toast" popover="manual" role="status" aria-live="polite">
+        <span id="toastIcon" class="toast__icon">🚀</span>
+        <span id="toastMessage" class="toast__message"></span>
+    </div>
+
+    <!-- Aviso caso o site seja aberto direto do arquivo (módulos ES exigem um servidor) -->
+    <script>
+        window.addEventListener('load', function () {
+            if (!window.__CINE_FUTURO_READY__ && location.protocol === 'file:') {
+                document.body.insertAdjacentHTML('afterbegin',
+                    '<p class="file-warning">Abra o site por um servidor local (ex.: extensão Live Server do VS Code). Veja o README.md.</p>');
+            }
+        });
+    </script>
+</body>
+</html>
